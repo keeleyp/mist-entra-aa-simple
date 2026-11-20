@@ -1,0 +1,10 @@
+*.ini
+!mist_entra_aa_simple.ini.example
+.msal_token_cache.json
+__pycache__/
+.DS_Store
+*.state.json
+*.state.restored-*.json
+*.docx
+~$*
+*.log

@@ -1,0 +1,86 @@
+; Mist Access Assurance + Entra ID builder (simplified edition).
+; Copy to mist_entra_aa_simple.ini and edit. Mist object names must be 32 characters
+; or fewer (Mist UI limit) - the script checks this before it starts.
+
+[mist]
+; Either cloud + token directly ...
+; API host for your Mist cloud (manage.gc3.mist.com -> api.gc3.mist.com) and an
+; org admin API token.
+cloud = api.gc3.mist.com
+token = <org admin API token>
+; ... or leave cloud/token blank and point at a credential store [label] section.
+; credentials = ~/ClaudeProjects/_Credentials/api_keys.ini
+; label = MyOrg
+; Only needed if the token has write access to more than one org.
+org_id =
+; Name of the Entra ID identity provider in Mist.
+idp_name = Entra ID
+
+[entra]
+; Tenant to sign in to: a verified domain, xxx.onmicrosoft.com, or the tenant ID.
+; The script shows a device code; sign in as a Global Administrator.
+tenant = contoso.onmicrosoft.com
+; Prefix for the Entra objects (app registrations).
+name_prefix = Mist Access Assurance
+; Optional EXISTING security group. If set, only its members may sign in to the
+; portals (needs Entra ID P1) and the NAC rule also requires membership.
+; Blank = any tenant user. The script never creates or changes this group.
+user_group =
+; User realms routed to Entra ID. Blank = all of the tenant's verified domains.
+domains =
+; Make Entra ID the default Access Assurance identity provider.
+default_idp = true
+; Lifetime of the IdP Connector client secret and the SAML signing certs (max 36).
+secret_months = 24
+saml_cert_months = 36
+
+[site]
+; Existing site the two WLAN templates are applied to. It is not changed.
+name = Primary Site
+
+[wlan]
+; Each SSID gets its own WLAN template. Blank = "Access Assurance - <ssid>".
+psk_template =
+cert_template =
+; Multi-PSK SSID used by the PSK self-service portal.
+psk_ssid = Corp-PSK
+psk_vlan_id =
+; 802.1X SSID on Mist Access Assurance, used by the certificate portal.
+cert_ssid = Corp-Secure
+cert_vlan_id =
+
+[nac]
+; tag_name is only used when [entra] user_group is set. Blank = "Entra grp: <group>".
+tag_name =
+rule_name = EAP-TLS Entra users
+
+[psk_portal]
+name = PSK Self-Service
+expire_days = 365
+; Devices per PSK (0 = unlimited).
+max_usage = 5
+passphrase_length = 12
+
+[cert_portal]
+name = Certificate Onboarding
+cert_expire_days = 365
+; wpa2 or wpa3
+eap_type = wpa2
+; wireless or wireless+wired
+access_type = wireless
+
+[output]
+; Relative paths are next to this ini. Each run adds a timestamp to the name, e.g.
+; Mist_Access_Assurance_Report_20261120-143005.docx
+; Word report with QR codes for both portals (written by each build).
+report = Mist_Access_Assurance_Report.docx
+; Everything shown on screen, with a time on each line (written by every run;
+; the name also says build, dry-run or teardown).
+audit_log = Mist_Access_Assurance_Audit.log
+
+[network]
+; Optional - for Zscaler / corporate proxies.
+; ca_bundle = /path/to/zscaler-root.pem
+; verify_ssl = true
+; http_proxy = http://proxy:8080
+; https_proxy = http://proxy:8080
